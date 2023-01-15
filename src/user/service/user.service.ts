@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, UpdateResult } from 'typeorm';
+import { Observable } from 'rxjs/internal/Observable';
+import { from } from 'rxjs/internal/observable/from';
+import { Repository } from 'typeorm';
 import { UserEntity } from '../models/user.entity';
 import { User } from '../models/user.interface';
 
@@ -11,23 +13,24 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
   ) {}
 
-  async create(user: User): Promise<User> {
-    return await this.userRepository.save(user);
+  create(user: User): Observable<User> {
+    return from(this.userRepository.save(user));
   }
 
-  async findOne(uuid: string): Promise<User> {
-    return await this.userRepository.findOne({ where: { uuid: uuid } });
+  findOne(id: string): Observable<User> {
+    return from(this.userRepository.findOne({ where: { id: id } }));
   }
 
-  async findAll(): Promise<User[]> {
-    return await this.userRepository.find();
+  findAll(): Observable<User[]> {
+    return from(this.userRepository.find());
   }
 
-  async deleteOne(uuid: string): Promise<any> {
-    return await this.userRepository.delete(uuid);
+  deleteOne(id: string): Observable<any> {
+    return from(this.userRepository.delete(id));
   }
 
-  async updateOne(user: User): Promise<User> {
-    return await this.userRepository.save(user);
+  updateOne(id: string, user: User): Observable<User> {
+    user.id = id;
+    return from(this.userRepository.save(user));
   }
 }

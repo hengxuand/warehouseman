@@ -4,36 +4,45 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
-  Put,
+  UseFilters,
 } from '@nestjs/common';
+import { Observable } from 'rxjs/internal/Observable';
+import { GlobalExceptionFilter } from 'src/config/GlobalExceptionFilter';
 import { User } from '../models/user.interface';
 import { UserService } from '../service/user.service';
 
-@Controller('user')
+@Controller('users')
 export class UserController {
   constructor(private userService: UserService) {}
+
   @Post()
-  create(@Body() user: User): Promise<User> {
+  create(@Body() user: User): Observable<User> {
     return this.userService.create(user);
   }
-  @Get(':uuid')
-  findOne(@Param('uuid') uuid: string): Promise<User> {
-    return this.userService.findOne(uuid);
+  @Get(':id')
+  findOne(@Param('id') id: string): Observable<User> {
+    return this.userService.findOne(id);
   }
 
   @Get()
-  findAll(): Promise<User[]> {
+  findAll(): Observable<User[]> {
     return this.userService.findAll();
   }
 
-  @Delete(':uuid')
-  deleteOne(@Param('uuid') uuid: string): Promise<User> {
-    return this.userService.deleteOne(uuid);
+  @Delete(':id')
+  deleteOne(@Param('id') id: string): Observable<User> {
+    return this.userService.deleteOne(id);
   }
 
-  @Put()
-  updateOne(@Body() user: User): Promise<User> {
-    return this.userService.updateOne(user);
+  @Patch(':id')
+  @UseFilters(GlobalExceptionFilter)
+  updateOne(@Param('id') id: string, @Body() user: User): Observable<User> {
+    try {
+      return this.userService.updateOne(id, user);
+    } catch (exception) {
+      console.log(exception);
+    }
   }
 }
